@@ -9,9 +9,9 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import Stats from 'three/addons/libs/stats.module.js';
-import GUI from 'three/addons/libs/lil-gui.module.min.js';
+// import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+// import Stats from 'three/addons/libs/stats.module.js';
+// import GUI from 'three/addons/libs/lil-gui.module.min.js';
 
 import { Sound } from './Sound.js';
 
@@ -25,11 +25,7 @@ let scene = null,
   camera = null,
   renderer = null,
   controls = null,
-  clock = null,
-  stats = null,
-  gui = null;
-
-const params = { orbit: false };
+  clock = null;
 
 let sound1 = null,
   modelLoad = null,
@@ -99,16 +95,13 @@ function initScene() {
   initWorld();
   createPlayerMove();
   createFrontera();
-  initGui();
 }
 
 function animate() {
   renderer.render(scene, camera);
   sound1.update(camera);
 
-  if (params.orbit) {
-    controls.update();
-  } else if (playing) {
+  if (playing) {
     movePlayer();
     collisionAnimate();
   }
@@ -119,8 +112,6 @@ function animate() {
     Ducks[2].position.z += 0.01;
     Ducks[3].position.x -= 0.01;
   }
-
-  stats.update();
 }
 
 function initBasicElements() {
@@ -129,6 +120,9 @@ function initBasicElements() {
   renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#app'), antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   clock = new THREE.Timer();
+
+  // controls = new OrbitControls(camera, renderer.domElement);
+  // controls.update();
 
   scene.background = new THREE.Color(0x0099ff);
   scene.fog = new THREE.Fog(0xffffff, 0, 750);
@@ -140,16 +134,6 @@ function initBasicElements() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   camera.position.set(posX, posY, posZ);
-
-  // Controles para alejar/orbitar la cámara (se activan desde el panel "Opciones")
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.target.set(5, 0, 0); // centro de la isla
-  controls.enableDamping = true;
-  controls.maxDistance = 60;
-  controls.enabled = false;
-
-  stats = new Stats();
-  document.body.appendChild(stats.dom);
 }
 
 function initSound() {
@@ -158,26 +142,6 @@ function initSound() {
     debug: false, // pon true si quieres ver la esfera blanca donde está la fuente
     position: { x: 5, y: 3, z: 0 } // centro de la isla
   });
-}
-
-function initGui() {
-  gui = new GUI({ title: 'Opciones' });
-  gui.add(params, 'orbit').name('Cámara libre').onChange(toggleOrbit);
-
-  const rain = gui.addFolder('Sonido de lluvia');
-  rain.add(sound1, 'volume', 0, 1, 0.01).name('Volumen');
-  rain.add(sound1, 'radius', 5, 60, 1).name('Radio');
-}
-
-function toggleOrbit(active) {
-  controls.enabled = active;
-  if (!active) {
-    // Al apagar la cámara libre, el jugador vuelve al inicio
-    camera.position.set(posX, posY, posZ);
-    camera.rotation.set(0, 0, 0);
-    MovingCube.position.set(posX, posY, posZ);
-    MovingCube.rotation.set(0, 0, 0);
-  }
 }
 
 // Carga de un modelo OBJ + MTL (ej: './modelos/island/', 'littleisle.mtl', 'littleisle.obj')
@@ -336,8 +300,8 @@ function go2Play() {
   ui.blocker.hidden = true;
   ui.hud.hidden = false;
   ui.lives.textContent = lives;
-  playAudio(ui.music);
-  sound1.play();
+    playAudio(ui.music);
+  sound1.play(); 
   initialiseTimer();
 }
 
@@ -346,7 +310,7 @@ function pauseGame() {
   playing = false;
   Object.keys(input).forEach((k) => (input[k] = 0));
   clearInterval(timerId);
-  pauseAudio(ui.music);
+   pauseAudio(ui.music);
   sound1.pause();
   ui.playLabel.textContent = 'Continuar';
   ui.blocker.hidden = false;
@@ -405,7 +369,7 @@ function collisionAnimate() {
     if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
       camera.position.set(posX, posY, posZ);
       MovingCube.position.set(posX, posY, posZ);
-      // vidas jugador
+      // El jugador cruzó el límite del mundo: pierde una vida (y reaparece en el inicio)
       lives = Math.max(0, lives - 1);
       ui.lives.textContent = lives;
       if (lives === 0) {
@@ -423,7 +387,7 @@ function endGame() {
   clearInterval(timerId);
   ui.hud.hidden = true;
   ui.lost.hidden = false;
-  pauseAudio(ui.music);
+   pauseAudio(ui.music);
   sound1.pause();
   playAudio(ui.endGame);
 }

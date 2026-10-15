@@ -115,15 +115,15 @@ function animate() {
      
   }
 
-  if (Ducks[0] && Ducks[1] && Ducks[2] && Ducks[3]) {
+    if (Ducks[0] && Ducks[1] && Ducks[2] && Ducks[3]) {
     Ducks[0].position.x += 0.01;
     Ducks[1].position.z -= 0.01;
     Ducks[2].position.z += 0.01;
     Ducks[3].position.x -= 0.01;
   }
-  
+
+  stats.update();  
 }
- stats.update();
 function initBasicElements() {
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);

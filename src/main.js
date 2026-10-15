@@ -178,7 +178,7 @@ function toggleOrbit(active) {
     MovingCube.rotation.set(0, 0, 0);
   }
 }
-}
+
 
 // Carga de un modelo OBJ + MTL (ej: './modelos/island/', 'littleisle.mtl', 'littleisle.obj')
 function createFistModel(generalPath, pathMtl, pathObj) {

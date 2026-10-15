@@ -25,7 +25,7 @@ let scene = null,
   camera = null,
   renderer = null,
   controls = null,
-  clock = null;
+  clock = null,
   stats = null,
   gui = null;
 
@@ -155,11 +155,12 @@ function initBasicElements() {
 function initSound() {
   sound1 = new Sound(['./songs/rain.mp3'], 15, scene, {
     volume: 0.8,
-    debug: false, 
+    debug: false,
     position: { x: 5, y: 3, z: 0 } // centro de la isla
   });
+}  
 
-  function initGui() {
+function initGui() {
   gui = new GUI({ title: 'Opciones' });
   gui.add(params, 'orbit').name('Cámara libre').onChange(toggleOrbit);
 

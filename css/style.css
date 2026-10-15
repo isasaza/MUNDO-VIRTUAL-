@@ -241,6 +241,7 @@ body {
   justify-content: space-between;
   gap: 12px;
   pointer-events: none;
+  
 }
 
 .chip {

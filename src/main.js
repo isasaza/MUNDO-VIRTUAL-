@@ -112,7 +112,7 @@ function animate() {
     movePlayer();
     collisionAnimate();
 
-      stats.update(); 
+     
   }
 
   if (Ducks[0] && Ducks[1] && Ducks[2] && Ducks[3]) {
@@ -123,7 +123,7 @@ function animate() {
   }
   
 }
-
+ stats.update();
 function initBasicElements() {
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -131,7 +131,7 @@ function initBasicElements() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   clock = new THREE.Timer();
 
-   controls = new OrbitControls(camera, renderer.domElement);
+  controls = new OrbitControls(camera, renderer.domElement);
   controls.target.set(5, 0, 0);
   controls.enableDamping = true;
   controls.maxDistance = 60;
@@ -158,6 +158,25 @@ function initSound() {
     debug: false, 
     position: { x: 5, y: 3, z: 0 } // centro de la isla
   });
+
+  function initGui() {
+  gui = new GUI({ title: 'Opciones' });
+  gui.add(params, 'orbit').name('Cámara libre').onChange(toggleOrbit);
+
+  const rain = gui.addFolder('Sonido de lluvia');
+  rain.add(sound1, 'volume', 0, 1, 0.01).name('Volumen');
+  rain.add(sound1, 'radius', 5, 60, 1).name('Radio');
+}
+
+function toggleOrbit(active) {
+  controls.enabled = active;
+  if (!active) {
+    camera.position.set(posX, posY, posZ);
+    camera.rotation.set(0, 0, 0);
+    MovingCube.position.set(posX, posY, posZ);
+    MovingCube.rotation.set(0, 0, 0);
+  }
+}
 }
 
 // Carga de un modelo OBJ + MTL (ej: './modelos/island/', 'littleisle.mtl', 'littleisle.obj')

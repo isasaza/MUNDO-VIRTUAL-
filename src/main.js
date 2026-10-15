@@ -9,13 +9,13 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
-// import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-// import Stats from 'three/addons/libs/stats.module.js';
-// import GUI from 'three/addons/libs/lil-gui.module.min.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import Stats from 'three/addons/libs/stats.module.js';
+import GUI from 'three/addons/libs/lil-gui.module.min.js';
 
 import { Sound } from './Sound.js';
 
-const THREE_VERSION = '0.186.1'; // Debe coincidir con el importmap
+const THREE_VERSION = '0.186.1'; 
 const DRACO_PATH = `https://cdn.jsdelivr.net/npm/three@${THREE_VERSION}/examples/jsm/libs/draco/gltf/`;
 
 // ----------------------------
@@ -26,6 +26,10 @@ let scene = null,
   renderer = null,
   controls = null,
   clock = null;
+  stats = null,
+  gui = null;
+
+  const params = { orbit: false }; 
 
 let sound1 = null,
   modelLoad = null,
@@ -95,15 +99,20 @@ function initScene() {
   initWorld();
   createPlayerMove();
   createFrontera();
+  initGui(); 
 }
 
 function animate() {
   renderer.render(scene, camera);
   sound1.update(camera);
 
-  if (playing) {
+  if (params.orbit) {
+    controls.update();
+  } else if (playing) {
     movePlayer();
     collisionAnimate();
+
+      stats.update(); 
   }
 
   if (Ducks[0] && Ducks[1] && Ducks[2] && Ducks[3]) {
@@ -112,6 +121,7 @@ function animate() {
     Ducks[2].position.z += 0.01;
     Ducks[3].position.x -= 0.01;
   }
+  
 }
 
 function initBasicElements() {
@@ -121,8 +131,14 @@ function initBasicElements() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   clock = new THREE.Timer();
 
-  // controls = new OrbitControls(camera, renderer.domElement);
-  // controls.update();
+   controls = new OrbitControls(camera, renderer.domElement);
+  controls.target.set(5, 0, 0);
+  controls.enableDamping = true;
+  controls.maxDistance = 60;
+  controls.enabled = false;
+
+  stats = new Stats();
+  document.body.appendChild(stats.dom);
 
   scene.background = new THREE.Color(0x0099ff);
   scene.fog = new THREE.Fog(0xffffff, 0, 750);
@@ -139,7 +155,7 @@ function initBasicElements() {
 function initSound() {
   sound1 = new Sound(['./songs/rain.mp3'], 15, scene, {
     volume: 0.8,
-    debug: false, // pon true si quieres ver la esfera blanca donde está la fuente
+    debug: false, 
     position: { x: 5, y: 3, z: 0 } // centro de la isla
   });
 }
@@ -158,7 +174,7 @@ function createFistModel(generalPath, pathMtl, pathObj) {
     objLoader.load(pathObj, (object) => {
       modelLoad = object;
       figuresGeo.push(modelLoad);
-      // La textura es una paleta de colores (MagicaVoxel): NearestFilter evita que se mezclen
+      
       object.traverse((child) => {
         if (child.isMesh && child.material.map) {
           child.material.map.magFilter = THREE.NearestFilter;
@@ -369,7 +385,7 @@ function collisionAnimate() {
     if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
       camera.position.set(posX, posY, posZ);
       MovingCube.position.set(posX, posY, posZ);
-      // El jugador cruzó el límite del mundo: pierde una vida (y reaparece en el inicio)
+      // vidas jugador 
       lives = Math.max(0, lives - 1);
       ui.lives.textContent = lives;
       if (lives === 0) {
